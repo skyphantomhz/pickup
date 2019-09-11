@@ -1,0 +1,1 @@
+enum TransportType { car, bike }
