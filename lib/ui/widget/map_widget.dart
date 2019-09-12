@@ -7,24 +7,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'package:pick_up/bloc/map_bloc.dart';
-import 'package:rxdart/rxdart.dart';
 
 class MapWidget extends StatefulWidget {
-  ValueChanged<LatLng> onCenterPointChange;
-
-  MapWidget({this.onCenterPointChange});
-
   @override
   _MapWidgetState createState() => _MapWidgetState();
 }
 
 class _MapWidgetState extends State<MapWidget> {
   Completer<GoogleMapController> _controller = Completer();
-  StreamSubscription<LocationData> _locationSubscription;
   MapBloc mapBloc;
   var _locationService = new Location();
-  bool _permission = false;
-  LocationData _startLocation;
   LocationData _currentLocation;
   LatLng _destinationLocation;
   CameraPosition _currentCameraPosition;
@@ -49,14 +41,13 @@ class _MapWidgetState extends State<MapWidget> {
     LocationData location;
     try {
       bool serviceStatus = await _locationService.serviceEnabled();
-      print("Service status: $serviceStatus");
       if (serviceStatus) {
-        _permission = await _locationService.requestPermission();
-        print("Permission: $_permission");
+        final _permission = await _locationService.requestPermission();
         if (_permission) {
           location = await _locationService.getLocation();
           updateCameraPosition(location);
-          _locationSubscription = _locationService
+          // _locationSubscription = _
+          _locationService
               .onLocationChanged()
               .listen((LocationData result) async {
             if (destinationWasSelected) {
@@ -80,10 +71,6 @@ class _MapWidgetState extends State<MapWidget> {
       }
       location = null;
     }
-
-    setState(() {
-      _startLocation = location;
-    });
   }
 
   void updateCameraPosition(LocationData locationData) async {
@@ -116,6 +103,7 @@ class _MapWidgetState extends State<MapWidget> {
           ),
           builder: (context, snap) {
             return GoogleMap(
+              myLocationButtonEnabled: false,
               markers: _markers,
               polylines: Set.from([snap.data]),
               onMapCreated: (GoogleMapController controller) {
@@ -156,7 +144,12 @@ class _MapWidgetState extends State<MapWidget> {
     LatLngBounds bounds = LatLngBounds(
         northeast: LatLng(nLat, nLng), southwest: LatLng(sLat, sLng));
     final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    try {
+      controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    } on MissingPluginException catch (e) {
+      error = e.message;
+      print(error);
+    }
   }
 
   void _addDestinationSelectedListener() {
@@ -169,13 +162,17 @@ class _MapWidgetState extends State<MapWidget> {
         mapBloc.getRoute(
             LatLng(_currentLocation.latitude, _currentLocation.longitude),
             _destinationLocation);
+      } else {
+        mapBloc.clearData();
+        _markers.clear();
       }
     });
   }
 
   void _addMarker() {
     _markers.clear();
-    _markers.add(Marker(
-        markerId: MarkerId("destination"), position: _destinationLocation),);
+    _markers.add(
+      Marker(markerId: MarkerId("destination"), position: _destinationLocation),
+    );
   }
 }

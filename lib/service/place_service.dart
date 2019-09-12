@@ -17,7 +17,6 @@ class PlaceService {
     String mode = "mode=driving";
     String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + mode;
     String url = "$_baseUrl/directions/json?$parameters&key=$_apiKey";
-    print("url: $url");
     final response = await client.get(url);
     if (response.statusCode == 200) {
       return TripInfoRes.fromJson(response.body);
