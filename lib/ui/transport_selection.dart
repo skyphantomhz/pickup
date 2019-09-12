@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pick_up/data/transport_type.dart';
+import 'package:pick_up/ui/map_page.dart';
 import 'package:pick_up/ui/widget/transport_item.dart';
 
 class TransportSelection extends StatefulWidget {
+
+  static const routeName = '/';
+
   TransportSelection({Key key}) : super(key: key);
 
   @override
@@ -36,6 +40,9 @@ class _TransportSelectionState extends State<TransportSelection> {
   }
 
   _onSelectTransport(TransportType transport) {
-    Navigator.pushNamed(context, '/map');
+    Navigator.pushNamed(
+      context,
+      MapPage.routeName,
+      arguments: transport,);
   }
 }

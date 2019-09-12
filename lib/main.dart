@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => TransportSelection(),
-        '/map': (context) => MapPage(),
+        TransportSelection.routeName: (context) => TransportSelection(),
+        MapPage.routeName: (context) => MapPage(),
       },
     );
   }
