@@ -11,6 +11,8 @@ class MapBloc extends Bloc{
   BehaviorSubject<Polyline> _polyline = BehaviorSubject<Polyline>();
   Observable<Polyline> get polyline => _polyline.stream;
 
+  PublishSubject<bool> _isDestinationSelected = PublishSubject<bool>();
+  Observable<bool> get isDestinationSelected => _isDestinationSelected.stream;
 
   void getRoute(LatLng fromLatLng, LatLng toLatLng) async {
     final tripInfoRes = await placeRepository.getStep(fromLatLng, toLatLng);
@@ -28,8 +30,17 @@ class MapBloc extends Bloc{
             color: Colors.blue,)); 
   }
 
+  void onFloatButtonClick(bool currentState){
+    _isDestinationSelected.sink.add(!currentState);
+  }
+
   @override
   void dispose() {
     _polyline.close();
   }
+}
+
+enum StateFloatButton{
+  FindRoute,
+  SelectDestination
 }
