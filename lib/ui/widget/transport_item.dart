@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pick_up/data/TransportType.dart';
+import 'package:pick_up/data/transport_type.dart';
 
 class TransportItem extends StatefulWidget {
   final TransportType transport;
@@ -45,6 +45,7 @@ class _TransportItemState extends State<TransportItem> {
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
             color: _highlight ? Colors.green : Colors.white,
+            boxShadow: _highlight ? [BoxShadow(blurRadius: 5)] : [],
             shape: BoxShape.circle),
         child: Icon(
           widget.icon,

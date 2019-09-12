@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:bloc_provider/bloc_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:pick_up/data/trip_info_res.dart';
-import 'package:pick_up/service/place_service.dart';
+import 'package:pick_up/bloc/map_bloc.dart';
 
 class MapWidget extends StatefulWidget {
   ValueChanged<LatLng> onCenterPointChange;
@@ -28,7 +28,6 @@ class _MapWidgetState extends State<MapWidget> {
   CameraPosition _currentCameraPosition;
   String error;
   bool destinationWasSelected = false;
-  final Set<Polyline>_polyline={};
   static final CameraPosition _initialCamera = CameraPosition(
     target: LatLng(0, 0),
     zoom: 4,
@@ -103,24 +102,36 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final mapBloc = BlocProvider.of<MapBloc>(context);
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      child: GoogleMap(
-        polylines: _polyline,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        myLocationEnabled: true,
-        initialCameraPosition: _initialCamera,
-        onCameraMove: (CameraPosition cameraPosition) {
-          widget.onCenterPointChange(cameraPosition.target);
-        },
-        onLongPress: (location) {
-          _destinationLocation = location;
-          _moveCamera();
-        },
-      ),
+      child: StreamBuilder<Polyline>(
+          stream: mapBloc.polyline,
+          initialData: Polyline(
+            polylineId: PolylineId("abc"),
+          ),
+          builder: (context, snap) {
+            return GoogleMap(
+              polylines: Set.from([snap.data]),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              myLocationEnabled: true,
+              initialCameraPosition: _initialCamera,
+              onCameraMove: (CameraPosition cameraPosition) {
+                widget.onCenterPointChange(cameraPosition.target);
+              },
+              onLongPress: (location) {
+                _destinationLocation = location;
+                _moveCamera();
+                mapBloc.getRoute(
+                    LatLng(
+                        _currentLocation.latitude, _currentLocation.longitude),
+                    _destinationLocation);
+              },
+            );
+          }),
     );
   }
 
@@ -149,28 +160,6 @@ class _MapWidgetState extends State<MapWidget> {
     LatLngBounds bounds = LatLngBounds(
         northeast: LatLng(nLat, nLng), southwest: LatLng(sLat, sLng));
     final GoogleMapController controller = await _controller.future;
-
-
-    TripInfoRes result = await PlaceService.getStep(
-              fromLatLng.latitude, fromLatLng.longitude, toLatLng.latitude, toLatLng.longitude)
-        
-    List<LatLng> latLngs = List();
-    latLngs.add(result.steps.first.startLocation);
-    result.steps.forEach((step) {
-        latLngs.add(step.endLocation);
-      }
-    );
-
-    
-
-    setState(() {
-     _polyline.add(Polyline(
-            polylineId: PolylineId(_currentLocation.toString()),
-            visible: true,
-            points: latLngs,
-            color: Colors.blue,
-        )); 
-    });
     controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
   }
 }

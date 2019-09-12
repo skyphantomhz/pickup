@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pick_up/widget/map_widget.dart';
+import 'package:pick_up/ui/widget/map_widget.dart';
 
 class MapPage extends StatefulWidget {
   @override

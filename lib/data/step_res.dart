@@ -4,7 +4,7 @@ class StepsRes {
   LatLng startLocation;
   LatLng endLocation;
   StepsRes({this.startLocation, this.endLocation});
-//  Steps();
+  
   factory StepsRes.fromJson(Map<String, dynamic> json) {
     return new StepsRes(
         startLocation: new LatLng(

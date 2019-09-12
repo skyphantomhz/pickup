@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pick_up/data/TransportType.dart';
-import 'package:pick_up/widget/transport_item.dart';
+import 'package:pick_up/data/transport_type.dart';
+import 'package:pick_up/ui/widget/transport_item.dart';
 
 class TransportSelection extends StatefulWidget {
   TransportSelection({Key key}) : super(key: key);
