@@ -169,6 +169,13 @@ class _MapWidgetState extends State<MapWidget> {
     });
   }
 
+  @override
+  void dispose(){
+    mapBloc.clearData();
+    _markers.clear();
+    super.dispose();
+  }
+
   void _addMarker() {
     _markers.clear();
     _markers.add(
